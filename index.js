@@ -7,12 +7,52 @@ const PORT = 3000;
 // Roughly equivalent to the result of `http.createServer()`
 const app = express();
 
+// Express lets you pass in more than one handler 
+function log (req, res, next) {
+    console.log(`They asked for ${req.url}`)
+    // handlers can signal to express that they are done it is ok to move on the next handler
+    next();
+};
+ 
+function checksForUser(req, res, next) {
+    const isLoggedIn= true;
+    if(isLoggedIn) {
+        req.user = {
+            username:'Cascading Style Seil'
+        };
+    } else {
+        //I do not want to go to the 'next' middleware.
+        // I want to redirect them to the login pag.
+        res.redirect('/login');
+    }
+    // req.user = null;
+    next();
+}
+
+
+
+function homePage(req, res) {
+    // res.send('Home page as a named function')
+    if (req.user) {
+        res.send(`Hey ${req.user.username}! Hooray.`)
+    } else {
+        res.send(`Wait. I don't't know you`)
+    }
+};
+
+
+function loginPage(req,res) {
+    res.send(`You must log in`)
+}
+app.get('/login', loginPage);
+app.get('/', checksForUser, loginPage, homePage);
+
 // Respond to GET requests for the path "/" 
-app.get('/', (req, res)  => {
-    // Console log is server side
-    console.log('Responding to a GET')
-    res.send('Home page')
-}); 
+// app.get('/', (req, res)  => {
+//     // Console log is server side
+//     console.log('Responding to a GET')
+//     res.send('Home page')
+// }); 
 app.post('/', (req,res) => {
     console.log('Responding to a POST')
     res.send('You sent a POST')
