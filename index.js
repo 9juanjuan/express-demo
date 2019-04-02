@@ -1,11 +1,25 @@
 // bring in express
 const express = require('express'); 
 const PORT = 3000;
-
+const axios = require('axios');
+const es6Renderer = require('express-es6-template-engine');
 
 //Create an express app.
 // Roughly equivalent to the result of `http.createServer()`
 const app = express();
+const bookTitles = [
+    'The Shining',
+    'It',
+    'Pet Sematary',
+    'The Langoliers'
+]
+app.engine('html', es6Renderer); 
+app.set('views', 'views');
+app.set('view engine', 'html');
+
+
+
+
 
 // Express lets you pass in more than one handler 
 function log (req, res, next) {
@@ -29,7 +43,7 @@ function checksForUser(req, res, next) {
     next();
 }
 
-
+// app.get('/jokes', async (req, res))
 
 function homePage(req, res) {
     // res.send('Home page as a named function')
@@ -45,7 +59,17 @@ function loginPage(req,res) {
     res.send(`You must log in`)
 }
 app.get('/login', loginPage);
-app.get('/', checksForUser, loginPage, homePage);
+app.get('/',  (req,res) => {
+    res.render('index', {
+        locals: {
+            title: 'I am a robot',
+            books:bookTitles
+        }
+    })
+
+
+})
+// app.get('/', checksForUser, loginPage, homePage);
 
 // Respond to GET requests for the path "/" 
 // app.get('/', (req, res)  => {
